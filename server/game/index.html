@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+        <script src="libs/socket.io-client.min.js"></script>
+		<script type="module">
+            import * as THREE from '../node_modules/three/build/three.module.js';
+
+            const socket = io();
+            let rotate = false;
+            let rotateX = false;
+            let rotateY = false;
+            let rotateZ = false;
+
+            socket.on('touch', (which) => {
+                switch (which) {
+                    case "rotate":
+                        rotate = true;
+                        break;
+                    case "x":
+                        rotateX = true;
+                        break;
+                    case "y":
+                    rotateY = true;
+                        break;
+                    case "z":
+                    rotateZ = true;
+                        break;
+                }
+            });
+
+            socket.on('untouch', (which) => {
+                switch (which) {
+                    case "rotate":
+                        rotate = false;
+                        break;
+                        case "x":
+                        rotateX = false;
+                        break;
+                    case "y":
+                    rotateY = false;
+                        break;
+                    case "z":
+                    rotateZ = false;
+                        break;
+                }
+            });
+
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			const geometry = new THREE.BoxGeometry();
+			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			const cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
+
+			camera.position.z = 5;
+
+			const animate = function () {
+				requestAnimationFrame( animate );
+
+                if (rotate) {
+                    if(rotateX) {
+                        cube.rotation.x += 0.01;
+                    }
+                    if(rotateY) {
+                        cube.rotation.y += 0.01;
+                    }
+                    if(rotateZ) {
+                        cube.rotation.z += 0.01;
+                    }
+                }
+				renderer.render( scene, camera );
+			};
+
+			animate();
+		</script>
+	</body>
+</html>

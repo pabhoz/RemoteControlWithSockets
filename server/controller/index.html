@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controller</title>
+    <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+    <script src="libs/socket.io-client.min.js"></script>
+    <script>
+      const socket = io();
+    </script>
+
+    <div id="left">
+        <div class="supaCoolBtn" data-animations='["shadow-inset-center"]'>
+            <div data-animations='["scale-up-center"]' data-value="rotate">
+                Rotar
+            </div>
+        </div>
+    </div>
+    <div id="right">
+        <div class="button coolBlue" data-value="x" data-animations='["shadow-inset-center","scale-up-center"]'>X</div>
+        <div class="button coolRed" data-value="y" data-animations='["shadow-inset-center","scale-up-center"]'>Y</div>
+        <div class="button coolGreen" data-value="z" data-animations='["shadow-inset-center","scale-up-center"]'>Z</div>
+    </div>
+
+    <script>
+        const rotateBtn = document.querySelector("#left .supaCoolBtn");
+        listeTouchs(rotateBtn);
+        listeTouchs(rotateBtn.querySelector("div"));
+
+        const buttons = document.querySelectorAll("#right .button");
+        console.log(rotateBtn, buttons);
+
+        buttons.forEach( btn => {
+            listeTouchs(btn);
+        });
+
+        function listeTouchs(el) {
+            el.ontouchstart = function() {
+                console.log(this.dataset.animations);
+                const animations = this.dataset.animations ? JSON.parse(this.dataset.animations) : [];
+                animations.forEach( animation => {
+                    this.classList.add(animation);
+
+                    if ( this.dataset.value ) {
+                        socket.emit('touch', this.dataset.value);
+                    }
+                });
+            }
+            el.ontouchend = function() {
+                const animations = this.dataset.animations ? JSON.parse(this.dataset.animations) : [];
+                animations.forEach( animation => {
+                    this.classList.remove(animation);
+
+                    if( this.dataset.value ) {
+                        socket.emit('untouch', this.dataset.value);
+                    }
+                });
+            }
+        }
+    </script>
+    
+</body>
+</html>
